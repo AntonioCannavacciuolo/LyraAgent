@@ -13,7 +13,7 @@
         /* Stili globali per il corpo della pagina */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Sfondo leggermente grigio */
+            background-color: #f8fafc; /* Sfondo molto chiaro, simile a bianco */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,8 +25,8 @@
         /* Contenitore principale della chat */
         .chat-container {
             background-color: #ffffff;
-            border-radius: 1rem; /* Angoli arrotondati */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+            border-radius: 1.5rem; /* Angoli più arrotondati */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Ombra più pronunciata */
             width: 100%;
             max-width: 600px; /* Larghezza massima per desktop */
             display: flex;
@@ -36,14 +36,14 @@
         }
         /* Intestazione della chat */
         .chat-header {
-            background-color: #4f46e5; /* Viola profondo */
+            background-color: #3730a3; /* Viola più scuro */
             color: white;
             padding: 1.5rem;
             text-align: center;
             font-size: 1.5rem;
             font-weight: 700;
-            border-top-left-radius: 1rem;
-            border-top-right-radius: 1rem;
+            border-top-left-radius: 1.5rem;
+            border-top-right-radius: 1.5rem;
             position: relative; /* Per posizionare il dot di stato */
         }
         /* Area dei messaggi della chat */
@@ -54,25 +54,26 @@
             display: flex;
             flex-direction: column;
             gap: 1rem; /* Spazio tra i messaggi */
+            background-color: #ffffff; /* Sfondo dei messaggi bianco */
         }
         /* Stile comune per le bolle dei messaggi */
         .message-bubble {
             max-width: 80%; /* Larghezza massima della bolla */
             padding: 0.75rem 1rem;
-            border-radius: 0.75rem; /* Angoli arrotondati per le bolle */
+            border-radius: 1rem; /* Angoli arrotondati per le bolle */
             word-wrap: break-word; /* Va a capo se la parola è troppo lunga */
         }
         /* Stile per i messaggi dell'utente */
         .user-message {
-            background-color: #e0e7ff; /* Azzurro chiaro per i messaggi utente */
+            background-color: #bfdbfe; /* Azzurro leggermente più scuro */
             align-self: flex-end; /* Allinea a destra */
-            color: #333;
+            color: #1f2937; /* Testo più scuro */
         }
         /* Stile per i messaggi di Lyra */
         .lyra-message {
-            background-color: #f0f4f8; /* Grigio chiaro per i messaggi Lyra */
+            background-color: #e5e7eb; /* Grigio chiaro */
             align-self: flex-start; /* Allinea a sinistra */
-            color: #333;
+            color: #1f2937; /* Testo più scuro */
         }
         /* Area di input della chat */
         .chat-input-area {
@@ -85,19 +86,19 @@
         .chat-input {
             flex-grow: 1; /* Permette all'input di occupare lo spazio disponibile */
             padding: 0.75rem 1rem;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d1d5db; /* Bordo leggermente più scuro */
             border-radius: 0.75rem;
             outline: none; /* Rimuove il bordo di focus predefinito */
             font-size: 1rem;
         }
         /* Stile del campo di input al focus */
         .chat-input:focus {
-            border-color: #6366f1; /* Bordo viola al focus */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Ombra al focus */
+            border-color: #4f46e5; /* Bordo viola al focus */
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); /* Ombra al focus */
         }
         /* Pulsante di invio */
         .send-button {
-            background-color: #6366f1; /* Viola */
+            background-color: #4f46e5; /* Viola */
             color: white;
             padding: 0.75rem 1.5rem;
             border: none;
@@ -110,7 +111,7 @@
         }
         /* Stile del pulsante di invio al hover */
         .send-button:hover {
-            background-color: #4f46e5; /* Viola più scuro al hover */
+            background-color: #4338ca; /* Viola più scuro al hover */
             transform: translateY(-1px); /* Piccolo effetto di sollevamento */
         }
         /* Stile del pulsante di invio all'attivazione (click) */
