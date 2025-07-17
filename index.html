@@ -65,37 +65,31 @@
             letter-spacing: 1px;
         }
 
-        .app-header .actions, .app-header .user-profile {
+        .app-header .user-profile {
             display: flex;
             align-items: center;
             gap: 1rem;
-        }
-
-        .action-button, .user-profile {
             background-color: var(--container-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
             padding: 0.5rem 1rem;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        .action-button:hover, .user-profile:hover {
+        .app-header .user-profile:hover {
             background-color: var(--hover-bg-color);
             border-color: var(--accent-color);
         }
 
-        .action-button i, .user-profile i {
+        .app-header .user-profile i {
             font-size: 1.2rem;
             color: var(--text-secondary-color);
             transition: color 0.2s ease;
         }
         
-        .action-button:hover i, .user-profile:hover i {
+        .app-header .user-profile:hover i {
             color: var(--accent-color);
         }
 
@@ -253,6 +247,45 @@
             margin-bottom: 0.5rem;
             border: 1px solid var(--border-color);
         }
+
+        /* Stili per i nuovi bottoni in basso */
+        .bottom-actions {
+            display: flex;
+            justify-content: center; /* Centra i bottoni */
+            gap: 1rem; /* Spazio tra i bottoni */
+            padding: 1rem 2rem;
+            flex-shrink: 0;
+            background-color: var(--background-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .bottom-actions .action-button {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bottom-actions .action-button:hover {
+            background-color: var(--hover-bg-color);
+            border-color: var(--accent-color);
+        }
+
+        .bottom-actions .action-button i {
+            font-size: 1.2rem;
+            color: var(--text-secondary-color);
+            transition: color 0.2s ease;
+        }
+        
+        .bottom-actions .action-button:hover i {
+            color: var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -260,11 +293,6 @@
         <!-- Intestazione -->
         <header class="app-header">
             <div class="logo">AGENTE-LYRA</div>
-            <div class="actions">
-                <button class="action-button"><i class="ph-bold ph-file"></i> File</button>
-                <button class="action-button"><i class="ph-bold ph-globe"></i> Web</button>
-                <button class="action-button"><i class="ph-bold ph-function"></i> Math</button>
-            </div>
             <div class="user-profile">
                 <img src="https://placehold.co/32x32/111111/ffffff?text=F" alt="User Avatar" class="rounded-full w-8 h-8 border-2 border-gray-600">
                 <span>Fidax</span>
@@ -290,6 +318,12 @@
                 <button id="send-button">
                     <i class="ph-bold ph-paper-plane-tilt"></i>
                 </button>
+            </div>
+            <!-- Nuova sezione per i bottoni spostati -->
+            <div class="bottom-actions">
+                <button class="action-button"><i class="ph-bold ph-file"></i> File</button>
+                <button class="action-button"><i class="ph-bold ph-globe"></i> Web</button>
+                <button class="action-button"><i class="ph-bold ph-function"></i> Math</button>
             </div>
         </footer>
     </div>
