@@ -7,13 +7,12 @@
     <!-- Carica Tailwind CSS per uno styling rapido e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- sql.js rimosso, useremo IndexedDB -->
 
     <style>
         /* Stili globali per il corpo della pagina */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Sfondo molto chiaro, simile a bianco */
+            background-color: #000000; /* Sfondo nero per simulare il tema scuro */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,9 +23,9 @@
         }
         /* Contenitore principale della chat */
         .chat-container {
-            background-color: #ffffff;
-            border-radius: 1.5rem; /* Angoli più arrotondati */
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Ombra più pronunciata */
+            background-color: #1a1a1a; /* Grigio scuro per il contenitore */
+            border-radius: 1rem; /* Angoli arrotondati */
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.2); /* Ombra con bagliore verde */
             width: 100%;
             max-width: 600px; /* Larghezza massima per desktop */
             display: flex;
@@ -36,15 +35,15 @@
         }
         /* Intestazione della chat */
         .chat-header {
-            background-color: #3730a3; /* Viola più scuro */
-            color: white;
+            background-color: #0a0a0a; /* Grigio molto scuro per l'intestazione */
+            color: #00ff00; /* Testo verde brillante */
             padding: 1.5rem;
             text-align: center;
             font-size: 1.5rem;
             font-weight: 700;
-            border-top-left-radius: 1.5rem;
-            border-top-right-radius: 1.5rem;
-            position: relative; /* Per posizionare il dot di stato */
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            position: relative;
         }
         /* Area dei messaggi della chat */
         .chat-messages {
@@ -54,52 +53,61 @@
             display: flex;
             flex-direction: column;
             gap: 1rem; /* Spazio tra i messaggi */
-            background-color: #ffffff; /* Sfondo dei messaggi bianco */
+            background-color: #1a1a1a; /* Sfondo dei messaggi uguale al contenitore */
         }
         /* Stile comune per le bolle dei messaggi */
         .message-bubble {
             max-width: 80%; /* Larghezza massima della bolla */
             padding: 0.75rem 1rem;
-            border-radius: 1rem; /* Angoli arrotondati per le bolle */
+            border-radius: 0.75rem; /* Angoli arrotondati per le bolle */
             word-wrap: break-word; /* Va a capo se la parola è troppo lunga */
         }
         /* Stile per i messaggi dell'utente */
         .user-message {
-            background-color: #bfdbfe; /* Azzurro leggermente più scuro */
+            background-color: #006400; /* Verde scuro per i messaggi utente */
             align-self: flex-end; /* Allinea a destra */
-            color: #1f2937; /* Testo più scuro */
+            color: #ffffff; /* Testo bianco */
+            border-radius: 0.75rem 0.75rem 0 0.75rem; /* Angoli più specifici */
         }
         /* Stile per i messaggi di Lyra */
         .lyra-message {
-            background-color: #e5e7eb; /* Grigio chiaro */
+            background-color: #2a2a2a; /* Grigio leggermente più chiaro per i messaggi Lyra */
             align-self: flex-start; /* Allinea a sinistra */
-            color: #1f2937; /* Testo più scuro */
+            color: #e0e0e0; /* Testo grigio chiaro */
+            border-radius: 0.75rem 0.75rem 0.75rem 0; /* Angoli più specifici */
         }
         /* Area di input della chat */
         .chat-input-area {
             display: flex;
             padding: 1.5rem;
-            border-top: 1px solid #e2e8f0; /* Bordo superiore sottile */
-            background-color: #ffffff;
+            border-top: 1px solid #333333; /* Bordo superiore sottile */
+            background-color: #0a0a0a; /* Sfondo uguale all'intestazione */
         }
         /* Campo di input del messaggio */
         .chat-input {
             flex-grow: 1; /* Permette all'input di occupare lo spazio disponibile */
             padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db; /* Bordo leggermente più scuro */
+            border: 1px solid #00ff00; /* Bordo verde brillante */
             border-radius: 0.75rem;
             outline: none; /* Rimuove il bordo di focus predefinito */
             font-size: 1rem;
+            background-color: #000000; /* Sfondo nero */
+            color: #00ff00; /* Testo verde brillante */
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.2); /* Ombra con bagliore verde */
         }
         /* Stile del campo di input al focus */
         .chat-input:focus {
-            border-color: #4f46e5; /* Bordo viola al focus */
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); /* Ombra al focus */
+            border-color: #00ff00; /* Bordo verde al focus */
+            box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.4); /* Ombra al focus più pronunciata */
+        }
+        /* Stile del placeholder */
+        .chat-input::placeholder {
+            color: #008800; /* Verde più scuro per il placeholder */
         }
         /* Pulsante di invio */
         .send-button {
-            background-color: #4f46e5; /* Viola */
-            color: white;
+            background-color: #00ff00; /* Verde brillante */
+            color: #000000; /* Testo nero */
             padding: 0.75rem 1.5rem;
             border: none;
             border-radius: 0.75rem;
@@ -108,10 +116,11 @@
             font-size: 1rem;
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease; /* Transizioni fluide */
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.2); /* Ombra con bagliore verde */
         }
         /* Stile del pulsante di invio al hover */
         .send-button:hover {
-            background-color: #4338ca; /* Viola più scuro al hover */
+            background-color: #00e600; /* Verde leggermente più scuro al hover */
             transform: translateY(-1px); /* Piccolo effetto di sollevamento */
         }
         /* Stile del pulsante di invio all'attivazione (click) */
@@ -122,29 +131,29 @@
         .loading-indicator {
             text-align: center;
             padding: 1rem;
-            color: #6b7280;
+            color: #00cc00; /* Verde per il testo di caricamento */
             font-style: italic;
         }
 
         /* Nuovi stili per la formattazione dei messaggi di Lyra */
         .lyra-message strong {
             font-weight: 700; /* Rende il testo in grassetto più evidente */
-            color: #312e81; /* Un colore più scuro per il grassetto */
+            color: #00ff00; /* Verde brillante per il grassetto */
         }
 
         .lyra-message code {
-            background-color: #e2e8f0; /* Sfondo leggero per il codice inline */
+            background-color: #3a3a3a; /* Sfondo scuro per il codice inline */
             padding: 0.2em 0.4em;
             margin: 0;
             font-size: 85%;
             border-radius: 0.3rem;
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-            color: #c026d3; /* Colore viola per il testo del codice inline */
+            color: #00ff00; /* Verde brillante per il testo del codice inline */
         }
 
         .lyra-message pre {
-            background-color: #1f2937; /* Sfondo scuro per i blocchi di codice */
-            color: #f8fafc; /* Testo chiaro per i blocchi di codice */
+            background-color: #000000; /* Sfondo nero per i blocchi di codice */
+            color: #00ff00; /* Testo verde brillante per i blocchi di codice */
             padding: 1rem;
             border-radius: 0.5rem;
             overflow-x: auto; /* Abilita lo scroll orizzontale per i blocchi di codice lunghi */
@@ -153,6 +162,8 @@
             line-height: 1.4;
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
+            border: 1px solid #00ff00; /* Bordo verde per i blocchi di codice */
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.3); /* Ombra con bagliore verde */
         }
     </style>
 </head>
@@ -160,14 +171,14 @@
     <div class="chat-container">
         <div class="chat-header">
             Lyra Chatbot
-            <div id="user-id-display" class="text-xs mt-1">ID Utente: Caricamento...</div>
+            <div id="user-id-display" class="text-xs mt-1" style="color: #00cc00;">ID Utente: Caricamento...</div>
         </div>
         <div class="chat-messages" id="chat-messages">
             <!-- I messaggi della chat verranno inseriti qui dal JavaScript -->
             <div class="message-bubble lyra-message">Ciao! Sono Lyra, il tuo assistente. Come posso aiutarti oggi?</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="user-input" class="chat-input" placeholder="Scrivi qui il tuo messaggio...">
+            <input type="text" id="user-input" class="chat-input" placeholder="Chiedi ad Agente-Lyra...">
             <button id="send-button" class="send-button">Invia</button>
         </div>
     </div>
@@ -318,11 +329,11 @@
 
         /**
          * Adds a message to the chat window and saves it to IndexedDB.
-         * @param {string} sender - The message sender ('user' or 'lyra').
-         * @param {string} text - The message content.
-         * @param {boolean} [animate=true] - If true, animates typing for Lyra's messages.
-         * @param {boolean} [saveToDb=true] - If true, saves the message to IndexedDB. Set to false when loading from DB.
-         * @returns {Promise<void>} A Promise that resolves when the message has been added (and typed, if Lyra).
+         * @param {string} sender - The message sender ('user' o 'lyra').
+         * @param {string} text - Il contenuto del messaggio.
+         * @param {boolean} [animate=true] - Se true, anima la digitazione per i messaggi di Lyra.
+         * @param {boolean} [saveToDb=true] - Se true, salva il messaggio in IndexedDB. Imposta a false quando si carica dal DB.
+         * @returns {Promise<void>} Una Promise che si risolve quando il messaggio è stato aggiunto (e digitato, se Lyra).
          */
         async function addMessage(sender, text, animate = true, saveToDb = true) {
             const messageDiv = document.createElement('div');
@@ -330,7 +341,7 @@
 
             if (sender === 'user') {
                 messageDiv.classList.add('user-message');
-                messageDiv.textContent = text; // User messages are not formatted
+                messageDiv.textContent = text; // I messaggi utente non vengono formattati
                 chatMessages.appendChild(messageDiv);
             } else {
                 messageDiv.classList.add('lyra-message');
@@ -430,64 +441,64 @@
          */
         async function sendMessage() {
             const message = userInput.value.trim();
-            if (message === '') return; // Do not send empty messages
+            if (message === '') return; // Non inviare messaggi vuoti
             if (!db) {
                 showCustomAlert("Database non ancora pronto. Impossibile inviare messaggi. Attendi o ricarica la pagina.");
                 return;
             }
 
-            // Clear the input field immediately for better UX
+            // Pulisci il campo di input immediatamente per una migliore UX
             userInput.value = '';
 
-            // Add the user's message to the chat and save it to IndexedDB
+            // Aggiungi il messaggio dell'utente alla chat e salvalo in IndexedDB
             await addMessage('user', message, true, true);
 
             showLoading(true);
-            sendButton.disabled = true; // Disable the button during sending to prevent double clicks
+            sendButton.disabled = true; // Disabilita il pulsante durante l'invio per prevenire doppi click
 
             try {
-                // Make a POST request to your Flask server
-                // The URL must match the address where your Flask server is running
+                // Fai una richiesta POST al tuo server Flask
+                // L'URL deve corrispondere all'indirizzo dove il tuo server Flask è in esecuzione
                 const response = await fetch('http://127.0.0.1:5000/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ message: message }) // Send the message as JSON
+                    body: JSON.stringify({ message: message }) // Invia il messaggio come JSON
                 });
 
-                // Check if the HTTP response is ok (status 200-299)
+                // Controlla se la risposta HTTP è ok (status 200-299)
                 if (!response.ok) {
-                    const errorData = await response.json(); // Attempt to read error details from JSON
+                    const errorData = await response.json(); // Tenta di leggere i dettagli dell'errore dal JSON
                     throw new Error(errorData.error || `Errore HTTP: ${response.status}`);
                 }
 
-                const data = await response.json(); // Parse the JSON response
-                // Add Lyra's response with the typing effect and save it to IndexedDB
+                const data = await response.json(); // Parsa la risposta JSON
+                // Aggiungi la risposta di Lyra con l'effetto di digitazione e salvala in IndexedDB
                 await addMessage('lyra', data.reply, true, true);
 
             } catch (error) {
-                console.error('Error sending message or saving to IndexedDB:', error);
-                // In case of error, add an error message without typing effect
-                addMessage('lyra', `Mi dispiace, si è verificato un errore: ${error.message}. Riprova più tardi.`, false, false); // Don't try to save an error message to DB if DB is the issue
+                console.error('Errore durante l\'invio del messaggio o il salvataggio in IndexedDB:', error);
+                // In caso di errore, aggiungi un messaggio di errore senza effetto di digitazione
+                addMessage('lyra', `Mi dispiace, si è verificato un errore: ${error.message}. Riprova più tardi.`, false, false); // Non tentare di salvare un messaggio di errore nel DB se il problema è il DB
             } finally {
                 showLoading(false);
-                sendButton.disabled = false; // Re-enable the button
-                userInput.focus(); // Put focus back on the input field for easy typing
+                sendButton.disabled = false; // Riabilita il pulsante
+                userInput.focus(); // Rimetti il focus sul campo di input per facilitare la digitazione
             }
         }
 
-        // Add event listener for the "Send" button click
+        // Aggiungi event listener per il click sul pulsante "Invia"
         sendButton.addEventListener('click', sendMessage);
 
-        // Add event listener for the "Enter" key in the input field
+        // Aggiungi event listener per il tasto "Invio" nel campo di input
         userInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        // Initialize the database and user on page load
+        // Inizializza il database e l'utente all'apertura della pagina
         window.onload = initIndexedDbAndUser;
     </script>
 </body>
