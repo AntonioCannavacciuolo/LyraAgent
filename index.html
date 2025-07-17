@@ -8,21 +8,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Carica Phosphor Icons per le icone -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Carica un font in stile "tech" da Google Fonts -->
+    <!-- Carica il font Inter da Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Variabili CSS per una facile gestione del tema */
+        /* Variabili CSS per il tema minimalista */
         :root {
             --background-color: #000000;
-            --text-color: #e0e0e0;
-            --primary-green: #00ff41;
-            --dark-green: #008a23;
-            --container-bg: rgba(16, 23, 16, 0.6);
-            --border-color: rgba(0, 255, 65, 0.4);
-            --font-family: 'Chakra Petch', sans-serif;
+            --container-bg: #111111;
+            --border-color: #333333;
+            --text-color: #f0f0f0;
+            --text-secondary-color: #888888;
+            --accent-color: #ffffff;
+            --hover-bg-color: #222222;
+            --font-family: 'Inter', sans-serif;
         }
 
         /* Stili globali per il corpo della pagina */
@@ -38,23 +39,12 @@
             height: 100vh;
         }
 
-        /* Canvas per l'effetto Matrix di sfondo */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* Posiziona il canvas dietro a tutto */
-        }
-
         /* Contenitore principale dell'applicazione */
         .app-container {
             display: flex;
             flex-direction: column;
             height: 100%;
             width: 100%;
-            backdrop-filter: blur(2px); /* Applica un leggero blur allo sfondo */
         }
 
         /* Intestazione dell'applicazione */
@@ -63,7 +53,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem 2rem;
-            background-color: rgba(10, 10, 10, 0.5);
+            background-color: var(--background-color);
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
         }
@@ -71,8 +61,8 @@
         .app-header .logo {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary-green);
-            letter-spacing: 2px;
+            color: var(--accent-color);
+            letter-spacing: 1px;
         }
 
         .app-header .actions, .app-header .user-profile {
@@ -82,7 +72,7 @@
         }
 
         .action-button, .user-profile {
-            background-color: rgba(30, 30, 30, 0.7);
+            background-color: var(--container-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
             padding: 0.5rem 1rem;
@@ -95,13 +85,18 @@
         }
 
         .action-button:hover, .user-profile:hover {
-            background-color: var(--dark-green);
-            color: var(--background-color);
-            border-color: var(--primary-green);
+            background-color: var(--hover-bg-color);
+            border-color: var(--accent-color);
         }
 
         .action-button i, .user-profile i {
             font-size: 1.2rem;
+            color: var(--text-secondary-color);
+            transition: color 0.2s ease;
+        }
+        
+        .action-button:hover i, .user-profile:hover i {
+            color: var(--accent-color);
         }
 
         /* Area principale della chat */
@@ -131,8 +126,11 @@
             background: transparent;
         }
         #chat-messages::-webkit-scrollbar-thumb {
-            background-color: var(--primary-green);
+            background-color: var(--border-color);
             border-radius: 6px;
+        }
+        #chat-messages::-webkit-scrollbar-thumb:hover {
+            background-color: var(--text-secondary-color);
         }
 
         /* Stile comune per le bolle dei messaggi */
@@ -150,7 +148,7 @@
 
         .message-bubble .icon {
             font-size: 1.8rem;
-            color: var(--primary-green);
+            color: var(--text-secondary-color);
             flex-shrink: 0;
             margin-top: 4px;
         }
@@ -167,7 +165,7 @@
         /* Stile per i messaggi dell'utente */
         .user-message {
             align-self: flex-end;
-            flex-direction: row-reverse; /* Inverte icona e testo */
+            background: var(--hover-bg-color);
         }
 
         /* Area di input della chat */
@@ -181,13 +179,13 @@
             align-items: center;
             background: var(--container-bg);
             border: 1px solid var(--border-color);
-            border-radius: 999px; /* Bordo completamente arrotondato */
+            border-radius: 12px;
             padding: 0.5rem 0.5rem 0.5rem 1.5rem;
             transition: border-color 0.2s ease;
         }
 
         .input-wrapper:focus-within {
-            border-color: var(--primary-green);
+            border-color: var(--accent-color);
         }
 
         #user-input {
@@ -201,25 +199,26 @@
         }
 
         #user-input::placeholder {
-            color: rgba(224, 224, 224, 0.5);
+            color: var(--text-secondary-color);
         }
 
         #send-button {
-            background-color: var(--primary-green);
-            color: var(--background-color);
+            background-color: transparent;
+            color: var(--text-secondary-color);
             border: none;
-            border-radius: 50%;
+            border-radius: 8px;
             width: 40px;
             height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         #send-button:hover {
-            background-color: #5eff8b;
+            background-color: var(--hover-bg-color);
+            color: var(--accent-color);
         }
 
         #send-button i {
@@ -228,21 +227,22 @@
 
         /* Stili per la formattazione dei messaggi di Lyra */
         .lyra-message strong {
-            font-weight: 700;
-            color: var(--primary-green);
+            font-weight: 600;
+            color: var(--accent-color);
         }
 
         .lyra-message code {
-            background-color: rgba(0, 255, 65, 0.1);
+            background-color: var(--hover-bg-color);
             padding: 0.2em 0.4em;
             margin: 0;
             font-size: 85%;
             border-radius: 0.3rem;
-            color: var(--primary-green);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
         }
 
         .lyra-message pre {
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: var(--background-color);
             color: #f8fafc;
             padding: 1rem;
             border-radius: 0.5rem;
@@ -256,9 +256,6 @@
     </style>
 </head>
 <body>
-    <!-- Canvas per l'effetto Matrix -->
-    <canvas id="matrix-canvas"></canvas>
-
     <div class="app-container">
         <!-- Intestazione -->
         <header class="app-header">
@@ -269,7 +266,7 @@
                 <button class="action-button"><i class="ph-bold ph-function"></i> Math</button>
             </div>
             <div class="user-profile">
-                <img src="https://placehold.co/32x32/00ff41/000000?text=F" alt="User Avatar" class="rounded-full w-8 h-8 border-2 border-primary-green">
+                <img src="https://placehold.co/32x32/111111/ffffff?text=F" alt="User Avatar" class="rounded-full w-8 h-8 border-2 border-gray-600">
                 <span>Fidax</span>
                 <i class="ph-bold ph-caret-down"></i>
             </div>
@@ -298,68 +295,6 @@
     </div>
 
     <script>
-        // --- SCRIPT EFFETTO MATRIX ---
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Imposta la dimensione del canvas a schermo intero
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // Caratteri da usare per l'effetto (Katakana, numeri, lettere)
-        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const nums = '0123456789';
-        const alphabet = katakana + latin + nums;
-
-        const fontSize = 16;
-        const columns = Math.floor(canvas.width / fontSize);
-
-        // Array per tenere traccia della posizione y di ogni colonna di caratteri
-        const rainDrops = [];
-        for (let x = 0; x < columns; x++) {
-            rainDrops[x] = 1;
-        }
-
-        const drawMatrix = () => {
-            // Sfondo nero semitrasparente per creare l'effetto di scia
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary-green').trim();
-            ctx.font = `${fontSize}px monospace`;
-
-            for (let i = 0; i < rainDrops.length; i++) {
-                // Scegli un carattere casuale dall'alfabeto
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                // Disegna il carattere
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-                // Resetta la goccia in cima allo schermo in modo casuale per un effetto più naturale
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
-        };
-
-        // Avvia l'animazione
-        setInterval(drawMatrix, 30);
-
-        // Aggiorna la dimensione del canvas al ridimensionamento della finestra
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            // Ricalcola le colonne in base alla nuova larghezza
-            const newColumns = Math.floor(canvas.width / fontSize);
-            // Assicura che l'array rainDrops abbia la lunghezza corretta
-            while(rainDrops.length < newColumns) {
-                rainDrops.push(1);
-            }
-            rainDrops.length = newColumns;
-        });
-
-
         // --- SCRIPT LOGICA CHAT ---
         let db; // Variabile globale per il database IndexedDB
         let currentUserId = null; // Variabile per memorizzare l'ID utente
@@ -371,7 +306,7 @@
             alertBox.innerHTML = `
                 <div style="background: var(--container-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px;">
                     <p style="margin-bottom: 1.5rem; font-size: 1.1rem;">${message}</p>
-                    <button id="alert-ok-button" style="background-color: var(--primary-green); color: var(--background-color); padding: 0.5rem 2rem; border-radius: 8px; border: none; cursor: pointer;">OK</button>
+                    <button id="alert-ok-button" style="background-color: var(--accent-color); color: var(--background-color); padding: 0.5rem 2rem; border-radius: 8px; border: none; cursor: pointer;">OK</button>
                 </div>
             `;
             document.body.appendChild(alertBox);
@@ -388,7 +323,7 @@
                 }
                 console.log("User ID:", currentUserId);
 
-                const request = indexedDB.open('LyraChatDB_Matrix', 1);
+                const request = indexedDB.open('LyraChatDB_Minimal', 1);
 
                 request.onerror = (event) => {
                     console.error("IndexedDB error:", event.target.errorCode);
@@ -404,7 +339,7 @@
 
                 request.onsuccess = (event) => {
                     db = event.target.result;
-                    console.log("IndexedDB 'LyraChatDB_Matrix' opened successfully.");
+                    console.log("IndexedDB 'LyraChatDB_Minimal' opened successfully.");
                     loadChatMessages();
                     resolve();
                 };
@@ -456,7 +391,6 @@
                 messageDiv.classList.add('user-message');
                 messageDiv.innerHTML = `
                     <div class="message-content">${text}</div>
-                    <i class="icon ph-bold ph-user"></i>
                 `;
             } else { // sender === 'lyra'
                 messageDiv.classList.add('lyra-message');
