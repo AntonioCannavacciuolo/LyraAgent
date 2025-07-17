@@ -526,28 +526,38 @@
             sendButton.disabled = true;
 
             try {
-                // Simula una chiamata API e una risposta per la demo
-                // Sostituisci questo blocco con la tua chiamata fetch reale
-                setTimeout(() => {
-                    const replies = [
-                        "Certo, sto analizzando la tua richiesta: **" + message + "**",
-                        "Ho trovato alcune informazioni. Ecco un riassunto: `risultato_esempio`.",
-                        "Ecco un blocco di codice che potrebbe esserti utile:\n```javascript\nconsole.log('Hello, world!');\n```",
-                        "Analisi completata. C'è altro che posso fare per te?"
-                    ];
-                    const reply = replies[Math.floor(Math.random() * replies.length)];
-                    addMessage('lyra', reply, true);
-                    showLoading(false);
-                    sendButton.disabled = false;
-                    userInput.focus();
-                }, 1500);
+                // Esegue una richiesta POST al server Flask
+                const response = await fetch('http://127.0.0.1:5000/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }) // Invia il messaggio come JSON
+                });
+
+                // Controlla se la risposta HTTP è andata a buon fine
+                if (!response.ok) {
+                    let errorText = `Errore HTTP: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorText = errorData.error || errorText;
+                    } catch (e) {
+                        // Il corpo della risposta non è JSON o è vuoto
+                    }
+                    throw new Error(errorText);
+                }
+
+                const data = await response.json(); // Analizza la risposta JSON
+                await addMessage('lyra', data.reply, true); // Aggiunge la risposta di Lyra
 
             } catch (error) {
-                console.error('Error sending message:', error);
-                addMessage('lyra', `Mi dispiace, si è verificato un errore: ${error.message}.`, false);
-                showLoading(false);
-                sendButton.disabled = false;
-                userInput.focus();
+                console.error('Errore durante l\'invio del messaggio:', error);
+                // In caso di errore, aggiunge un messaggio di errore alla chat
+                addMessage('lyra', `Mi dispiace, si è verificato un errore di connessione: ${error.message}. Assicurati che il server Python sia in esecuzione.`, false);
+            } finally {
+                showLoading(false); // Nasconde l'indicatore di caricamento
+                sendButton.disabled = false; // Riabilita il pulsante
+                userInput.focus(); // Rimette il focus sull'input
             }
         }
 
