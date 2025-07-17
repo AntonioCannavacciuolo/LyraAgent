@@ -3,268 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lyra Chatbot</title>
-    <!-- Carica Tailwind CSS per uno styling rapido e responsivo -->
+    <title>Agente-Lyra</title>
+    <!-- Carica Tailwind CSS per utilità di base -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Carica Phosphor Icons per le icone -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Carica un font in stile "tech" da Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* Variabili CSS per una facile gestione del tema */
+        :root {
+            --background-color: #000000;
+            --text-color: #e0e0e0;
+            --primary-green: #00ff41;
+            --dark-green: #008a23;
+            --container-bg: rgba(16, 23, 16, 0.6);
+            --border-color: rgba(0, 255, 65, 0.4);
+            --font-family: 'Chakra Petch', sans-serif;
+        }
+
         /* Stili globali per il corpo della pagina */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000000; /* Sfondo nero per simulare il tema scuro */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Altezza minima del 100% della viewport */
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
             margin: 0;
-            padding: 20px;
-            box-sizing: border-box; /* Include padding e border nel calcolo della larghezza/altezza */
-        }
-        /* Contenitore principale della chat */
-        .chat-container {
-            background-color: #1a1a1a; /* Grigio scuro per il contenitore */
-            border-radius: 1rem; /* Angoli arrotondati */
-            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.2); /* Ombra con bagliore verde */
-            width: 100%;
-            max-width: 600px; /* Larghezza massima per desktop */
+            padding: 0;
+            overflow: hidden; /* Nasconde lo scroll della pagina */
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Nasconde il contenuto che eccede i bordi */
-            height: 80vh; /* Altezza fissa per la finestra di chat, si adatta alla viewport */
+            height: 100vh;
         }
-        /* Intestazione della chat */
-        .chat-header {
-            background-color: #0a0a0a; /* Grigio molto scuro per l'intestazione */
-            color: #00ff00; /* Testo verde brillante */
-            padding: 1.5rem;
-            text-align: center;
+
+        /* Canvas per l'effetto Matrix di sfondo */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Posiziona il canvas dietro a tutto */
+        }
+
+        /* Contenitore principale dell'applicazione */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            backdrop-filter: blur(2px); /* Applica un leggero blur allo sfondo */
+        }
+
+        /* Intestazione dell'applicazione */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: rgba(10, 10, 10, 0.5);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .app-header .logo {
             font-size: 1.5rem;
             font-weight: 700;
-            border-top-left-radius: 1rem;
-            border-top-right-radius: 1rem;
-            position: relative;
+            color: var(--primary-green);
+            letter-spacing: 2px;
         }
-        /* Area dei messaggi della chat */
-        .chat-messages {
-            flex-grow: 1; /* Permette all'area dei messaggi di occupare lo spazio disponibile */
-            padding: 1.5rem;
+
+        .app-header .actions, .app-header .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .action-button, .user-profile {
+            background-color: rgba(30, 30, 30, 0.7);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-button:hover, .user-profile:hover {
+            background-color: var(--dark-green);
+            color: var(--background-color);
+            border-color: var(--primary-green);
+        }
+
+        .action-button i, .user-profile i {
+            font-size: 1.2rem;
+        }
+
+        /* Area principale della chat */
+        .chat-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Allinea i messaggi al fondo */
+            padding: 1rem 2rem;
+            overflow-y: hidden; /* Nasconde lo scroll, gestito dal contenitore dei messaggi */
+        }
+        
+        /* Contenitore dei messaggi */
+        #chat-messages {
             overflow-y: auto; /* Abilita lo scroll verticale per i messaggi */
             display: flex;
             flex-direction: column;
-            gap: 1rem; /* Spazio tra i messaggi */
-            background-color: #1a1a1a; /* Sfondo dei messaggi uguale al contenitore */
-        }
-        /* Stile comune per le bolle dei messaggi */
-        .message-bubble {
-            max-width: 80%; /* Larghezza massima della bolla */
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem; /* Angoli arrotondati per le bolle */
-            word-wrap: break-word; /* Va a capo se la parola è troppo lunga */
-        }
-        /* Stile per i messaggi dell'utente */
-        .user-message {
-            background-color: #006400; /* Verde scuro per i messaggi utente */
-            align-self: flex-end; /* Allinea a destra */
-            color: #ffffff; /* Testo bianco */
-            border-radius: 0.75rem 0.75rem 0 0.75rem; /* Angoli più specifici */
-        }
-        /* Stile per i messaggi di Lyra */
-        .lyra-message {
-            background-color: #2a2a2a; /* Grigio leggermente più chiaro per i messaggi Lyra */
-            align-self: flex-start; /* Allinea a sinistra */
-            color: #e0e0e0; /* Testo grigio chiaro */
-            border-radius: 0.75rem 0.75rem 0.75rem 0; /* Angoli più specifici */
-        }
-        /* Area di input della chat */
-        .chat-input-area {
-            display: flex;
-            padding: 1.5rem;
-            border-top: 1px solid #333333; /* Bordo superiore sottile */
-            background-color: #0a0a0a; /* Sfondo uguale all'intestazione */
-        }
-        /* Campo di input del messaggio */
-        .chat-input {
-            flex-grow: 1; /* Permette all'input di occupare lo spazio disponibile */
-            padding: 0.75rem 1rem;
-            border: 1px solid #00ff00; /* Bordo verde brillante */
-            border-radius: 0.75rem;
-            outline: none; /* Rimuove il bordo di focus predefinito */
-            font-size: 1rem;
-            background-color: #000000; /* Sfondo nero */
-            color: #00ff00; /* Testo verde brillante */
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.2); /* Ombra con bagliore verde */
-        }
-        /* Stile del campo di input al focus */
-        .chat-input:focus {
-            border-color: #00ff00; /* Bordo verde al focus */
-            box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.4); /* Ombra al focus più pronunciata */
-        }
-        /* Stile del placeholder */
-        .chat-input::placeholder {
-            color: #008800; /* Verde più scuro per il placeholder */
-        }
-        /* Pulsante di invio */
-        .send-button {
-            background-color: #00ff00; /* Verde brillante */
-            color: #000000; /* Testo nero */
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.75rem;
-            margin-left: 1rem;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease; /* Transizioni fluide */
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.2); /* Ombra con bagliore verde */
-        }
-        /* Stile del pulsante di invio al hover */
-        .send-button:hover {
-            background-color: #00e600; /* Verde leggermente più scuro al hover */
-            transform: translateY(-1px); /* Piccolo effetto di sollevamento */
-        }
-        /* Stile del pulsante di invio all'attivazione (click) */
-        .send-button:active {
-            transform: translateY(0); /* Ritorna alla posizione originale */
-        }
-        /* Indicatore di caricamento */
-        .loading-indicator {
-            text-align: center;
-            padding: 1rem;
-            color: #00cc00; /* Verde per il testo di caricamento */
-            font-style: italic;
+            gap: 1.5rem; /* Spazio tra i messaggi */
+            padding-right: 10px; /* Spazio per la scrollbar */
         }
 
-        /* Nuovi stili per la formattazione dei messaggi di Lyra */
+        /* Stile per la scrollbar */
+        #chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #chat-messages::-webkit-scrollbar-thumb {
+            background-color: var(--primary-green);
+            border-radius: 6px;
+        }
+
+        /* Stile comune per le bolle dei messaggi */
+        .message-bubble {
+            max-width: 75%;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            word-wrap: break-word;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .message-bubble .icon {
+            font-size: 1.8rem;
+            color: var(--primary-green);
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .message-content {
+            line-height: 1.6;
+        }
+
+        /* Stile per i messaggi di Lyra */
+        .lyra-message {
+            align-self: flex-start;
+        }
+        
+        /* Stile per i messaggi dell'utente */
+        .user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse; /* Inverte icona e testo */
+        }
+
+        /* Area di input della chat */
+        .chat-input-area {
+            padding: 1rem 2rem 2rem 2rem;
+            flex-shrink: 0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 999px; /* Bordo completamente arrotondato */
+            padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary-green);
+        }
+
+        #user-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: var(--font-family);
+        }
+
+        #user-input::placeholder {
+            color: rgba(224, 224, 224, 0.5);
+        }
+
+        #send-button {
+            background-color: var(--primary-green);
+            color: var(--background-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #send-button:hover {
+            background-color: #5eff8b;
+        }
+
+        #send-button i {
+            font-size: 1.5rem;
+        }
+
+        /* Stili per la formattazione dei messaggi di Lyra */
         .lyra-message strong {
-            font-weight: 700; /* Rende il testo in grassetto più evidente */
-            color: #00ff00; /* Verde brillante per il grassetto */
+            font-weight: 700;
+            color: var(--primary-green);
         }
 
         .lyra-message code {
-            background-color: #3a3a3a; /* Sfondo scuro per il codice inline */
+            background-color: rgba(0, 255, 65, 0.1);
             padding: 0.2em 0.4em;
             margin: 0;
             font-size: 85%;
             border-radius: 0.3rem;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-            color: #00ff00; /* Verde brillante per il testo del codice inline */
+            color: var(--primary-green);
         }
 
         .lyra-message pre {
-            background-color: #000000; /* Sfondo nero per i blocchi di codice */
-            color: #00ff00; /* Testo verde brillante per i blocchi di codice */
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #f8fafc;
             padding: 1rem;
             border-radius: 0.5rem;
-            overflow-x: auto; /* Abilita lo scroll orizzontale per i blocchi di codice lunghi */
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            overflow-x: auto;
             font-size: 0.9rem;
             line-height: 1.4;
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
-            border: 1px solid #00ff00; /* Bordo verde per i blocchi di codice */
-            box-shadow: 0 0 8px rgba(0, 255, 0, 0.3); /* Ombra con bagliore verde */
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            Lyra Chatbot
-            <div id="user-id-display" class="text-xs mt-1" style="color: #00cc00;">ID Utente: Caricamento...</div>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <!-- I messaggi della chat verranno inseriti qui dal JavaScript -->
-            <div class="message-bubble lyra-message">Ciao! Sono Lyra, il tuo assistente. Come posso aiutarti oggi?</div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="user-input" class="chat-input" placeholder="Chiedi ad Agente-Lyra...">
-            <button id="send-button" class="send-button">Invia</button>
-        </div>
+    <!-- Canvas per l'effetto Matrix -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="app-container">
+        <!-- Intestazione -->
+        <header class="app-header">
+            <div class="logo">AGENTE-LYRA</div>
+            <div class="actions">
+                <button class="action-button"><i class="ph-bold ph-file"></i> File</button>
+                <button class="action-button"><i class="ph-bold ph-globe"></i> Web</button>
+                <button class="action-button"><i class="ph-bold ph-function"></i> Math</button>
+            </div>
+            <div class="user-profile">
+                <img src="https://placehold.co/32x32/00ff41/000000?text=F" alt="User Avatar" class="rounded-full w-8 h-8 border-2 border-primary-green">
+                <span>Fidax</span>
+                <i class="ph-bold ph-caret-down"></i>
+            </div>
+        </header>
+
+        <!-- Area principale della chat -->
+        <main class="chat-main">
+            <div id="chat-messages">
+                <!-- I messaggi della chat verranno inseriti qui dal JavaScript -->
+                <div class="message-bubble lyra-message">
+                    <i class="icon ph-bold ph-brain"></i>
+                    <div class="message-content">Ciao Fidax, sono Agente-Lyra. Posso aiutarti con generazione di file, ricerche su internet, e problemi di matematica, fisica ed etica. Come posso assisterti oggi?</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Area di input -->
+        <footer class="chat-input-area">
+            <div class="input-wrapper">
+                <input type="text" id="user-input" placeholder="Chiedi ad Agente-Lyra...">
+                <button id="send-button">
+                    <i class="ph-bold ph-paper-plane-tilt"></i>
+                </button>
+            </div>
+        </footer>
     </div>
 
     <script>
-        let db; // Global variable for the IndexedDB database
-        let currentUserId = null; // Variable to store the user ID
+        // --- SCRIPT EFFETTO MATRIX ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
 
-        // Utility function to show a custom alert message
+        // Imposta la dimensione del canvas a schermo intero
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Caratteri da usare per l'effetto (Katakana, numeri, lettere)
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = Math.floor(canvas.width / fontSize);
+
+        // Array per tenere traccia della posizione y di ogni colonna di caratteri
+        const rainDrops = [];
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+
+        const drawMatrix = () => {
+            // Sfondo nero semitrasparente per creare l'effetto di scia
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary-green').trim();
+            ctx.font = `${fontSize}px monospace`;
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                // Scegli un carattere casuale dall'alfabeto
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                // Disegna il carattere
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+                // Resetta la goccia in cima allo schermo in modo casuale per un effetto più naturale
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+
+        // Avvia l'animazione
+        setInterval(drawMatrix, 30);
+
+        // Aggiorna la dimensione del canvas al ridimensionamento della finestra
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Ricalcola le colonne in base alla nuova larghezza
+            const newColumns = Math.floor(canvas.width / fontSize);
+            // Assicura che l'array rainDrops abbia la lunghezza corretta
+            while(rainDrops.length < newColumns) {
+                rainDrops.push(1);
+            }
+            rainDrops.length = newColumns;
+        });
+
+
+        // --- SCRIPT LOGICA CHAT ---
+        let db; // Variabile globale per il database IndexedDB
+        let currentUserId = null; // Variabile per memorizzare l'ID utente
+
+        // Funzione per mostrare un alert personalizzato (non usata nel nuovo design, ma mantenuta per utilità)
         function showCustomAlert(message) {
             const alertBox = document.createElement('div');
-            alertBox.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50';
+            alertBox.style.cssText = 'position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100;';
             alertBox.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-                    <p class="text-lg font-semibold text-red-600 mb-4">${message}</p>
-                    <button id="alert-ok-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                        OK
-                    </button>
+                <div style="background: var(--container-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px;">
+                    <p style="margin-bottom: 1.5rem; font-size: 1.1rem;">${message}</p>
+                    <button id="alert-ok-button" style="background-color: var(--primary-green); color: var(--background-color); padding: 0.5rem 2rem; border-radius: 8px; border: none; cursor: pointer;">OK</button>
                 </div>
             `;
             document.body.appendChild(alertBox);
-
-            document.getElementById('alert-ok-button').onclick = () => {
-                alertBox.remove();
-            };
+            document.getElementById('alert-ok-button').onclick = () => alertBox.remove();
         }
 
-        // Initialize IndexedDB and generate/retrieve user ID
+        // Inizializza IndexedDB e genera/recupera l'ID utente
         async function initIndexedDbAndUser() {
             return new Promise((resolve, reject) => {
-                // Try to get the user ID from localStorage first for persistence across sessions
                 currentUserId = localStorage.getItem('lyraChatUserId');
                 if (!currentUserId) {
                     currentUserId = crypto.randomUUID();
                     localStorage.setItem('lyraChatUserId', currentUserId);
                 }
-                document.getElementById('user-id-display').textContent = `ID Utente: ${currentUserId}`;
                 console.log("User ID:", currentUserId);
 
-                const request = indexedDB.open('LyraChatDB', 1);
+                const request = indexedDB.open('LyraChatDB_Matrix', 1);
 
                 request.onerror = (event) => {
                     console.error("IndexedDB error:", event.target.errorCode);
-                    showCustomAlert(`Errore IndexedDB: ${event.target.errorCode}. Impossibile aprire il database.`);
                     reject(event.target.errorCode);
                 };
 
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
-                    // Create an object store for messages if it doesn't exist
-                    // KeyPath 'id' is automatically incremented
                     const objectStore = db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
-                    // Create an index on 'userId' to efficiently query messages for a specific user
                     objectStore.createIndex('userId', 'userId', { unique: false });
-                    // Create an index on 'timestamp' for ordering messages
                     objectStore.createIndex('timestamp', 'timestamp', { unique: false });
-                    console.log("IndexedDB object store 'messages' created/upgraded.");
                 };
 
                 request.onsuccess = (event) => {
                     db = event.target.result;
-                    console.log("IndexedDB 'LyraChatDB' opened successfully.");
-                    loadChatMessages(); // Load messages after DB is ready
+                    console.log("IndexedDB 'LyraChatDB_Matrix' opened successfully.");
+                    loadChatMessages();
                     resolve();
                 };
             });
         }
 
-        // Get references to HTML elements
+        // Riferimenti agli elementi HTML
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
 
-        /**
-         * Shows or hides the loading indicator.
-         * @param {boolean} show - True to show, False to hide.
-         */
+        // Funzione per mostrare un indicatore di "sta scrivendo..."
         function showLoading(show) {
             let loadingDiv = document.getElementById('loading-indicator');
             if (show) {
                 if (!loadingDiv) {
-                    loadingDiv = document.createElement('div');
-                    loadingDiv.id = 'loading-indicator';
-                    loadingDiv.classList.add('loading-indicator');
-                    loadingDiv.textContent = 'Lyra sta digitando...';
-                    chatMessages.appendChild(loadingDiv);
+                    const messageDiv = document.createElement('div');
+                    messageDiv.id = 'loading-indicator';
+                    messageDiv.classList.add('message-bubble', 'lyra-message');
+                    messageDiv.innerHTML = `
+                        <i class="icon ph-bold ph-brain"></i>
+                        <div class="message-content">Lyra sta digitando...</div>
+                    `;
+                    chatMessages.appendChild(messageDiv);
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
             } else {
@@ -274,87 +438,34 @@
             }
         }
 
-        /**
-         * Processes message text to apply Markdown formatting (bold, code).
-         * @param {string} text - The message text to process.
-         * @returns {string} The message text with HTML formatting applied.
-         */
+        // Processa il testo del messaggio per applicare la formattazione Markdown
         function formatMessageContent(text) {
-            // Replaces multiline code blocks (```code```) with <pre><code>
             text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-
-            // Replaces bold text (**text** or *text*) with <strong>
-            // Ensure there are no spaces between asterisks and text
             text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            text = text.replace(/\*(.*?)\*/g, '<strong>$1</strong>'); // Also supports single asterisk for bold
-
-            // Replaces inline code (`code`) with <code>
+            text = text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
             text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-
             return text;
         }
 
-        /**
-         * Simulates a typing effect for a message.
-         * The text is typed character by character, and Markdown formatting is applied only at the end.
-         * @param {HTMLElement} element - The HTML element (a span inside the message bubble) to type the text into.
-         * @param {string} fullText - The complete text to type (Lyra's raw response).
-         * @returns {Promise<void>} A Promise that resolves when typing is complete.
-         */
-        function typeMessage(element, fullText) {
-            return new Promise(resolve => {
-                let i = 0;
-                const typingSpeed = 20; // Milliseconds per character (adjust for desired speed)
-
-                function typeChar() {
-                    if (i < fullText.length) {
-                        // Adds one character at a time to the textContent of the span
-                        element.textContent += fullText.charAt(i);
-                        // Automatically scroll down while typing
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                        i++;
-                        setTimeout(typeChar, typingSpeed);
-                    } else {
-                        // Once all text is typed, apply Markdown formatting to the innerHTML of the parent element
-                        // Note: Here we are overwriting the innerHTML of the element that contained the typing span,
-                        // to apply the HTML formatting.
-                        element.parentElement.innerHTML = formatMessageContent(fullText);
-                        chatMessages.scrollTop = chatMessages.scrollHeight; // Ensure scrolling to the end after formatting
-                        resolve();
-                    }
-                }
-                typeChar();
-            });
-        }
-
-        /**
-         * Adds a message to the chat window and saves it to IndexedDB.
-         * @param {string} sender - The message sender ('user' o 'lyra').
-         * @param {string} text - Il contenuto del messaggio.
-         * @param {boolean} [animate=true] - Se true, anima la digitazione per i messaggi di Lyra.
-         * @param {boolean} [saveToDb=true] - Se true, salva il messaggio in IndexedDB. Imposta a false quando si carica dal DB.
-         * @returns {Promise<void>} Una Promise che si risolve quando il messaggio è stato aggiunto (e digitato, se Lyra).
-         */
-        async function addMessage(sender, text, animate = true, saveToDb = true) {
+        // Aggiunge un messaggio alla finestra di chat e lo salva in IndexedDB
+        async function addMessage(sender, text, saveToDb = true) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message-bubble');
 
             if (sender === 'user') {
                 messageDiv.classList.add('user-message');
-                messageDiv.textContent = text; // I messaggi utente non vengono formattati
-                chatMessages.appendChild(messageDiv);
-            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-content">${text}</div>
+                    <i class="icon ph-bold ph-user"></i>
+                `;
+            } else { // sender === 'lyra'
                 messageDiv.classList.add('lyra-message');
-                const typingContentSpan = document.createElement('span');
-                messageDiv.appendChild(typingContentSpan);
-                chatMessages.appendChild(messageDiv);
-
-                if (animate) {
-                    await typeMessage(typingContentSpan, text);
-                } else {
-                    messageDiv.innerHTML = formatMessageContent(text);
-                }
+                messageDiv.innerHTML = `
+                    <i class="icon ph-bold ph-brain"></i>
+                    <div class="message-content">${formatMessageContent(text)}</div>
+                `;
             }
+            chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             if (saveToDb && db) {
@@ -366,139 +477,91 @@
                     userId: currentUserId,
                     timestamp: Date.now()
                 };
-                const request = objectStore.add(messageData);
-
-                request.onsuccess = () => {
-                    console.log("Message saved to IndexedDB:", messageData);
-                };
-                request.onerror = (event) => {
+                objectStore.add(messageData).onerror = (event) => {
                     console.error("Error saving message to IndexedDB:", event.target.error);
                 };
             }
-            return Promise.resolve();
         }
 
-        /**
-         * Loads chat messages from IndexedDB.
-         */
+        // Carica i messaggi della chat da IndexedDB
         async function loadChatMessages() {
-            if (!db) {
-                console.log("IndexedDB not yet ready, cannot load messages.");
-                return;
-            }
+            if (!db) return;
 
-            try {
-                const transaction = db.transaction(['messages'], 'readonly');
-                const objectStore = transaction.objectStore('messages');
-                const userIdIndex = objectStore.index('userId');
-                const timestampIndex = objectStore.index('timestamp');
+            const transaction = db.transaction(['messages'], 'readonly');
+            const objectStore = transaction.objectStore('messages');
+            const userIdIndex = objectStore.index('userId');
+            const request = userIdIndex.getAll(IDBKeyRange.only(currentUserId));
 
-                const messages = [];
-                // Use a cursor to retrieve messages for the current user, ordered by timestamp
-                const request = userIdIndex.openCursor(IDBKeyRange.only(currentUserId), 'next');
+            request.onsuccess = (event) => {
+                const messages = event.target.result;
+                messages.sort((a, b) => a.timestamp - b.timestamp);
+                
+                // Pulisce i messaggi esistenti tranne quello iniziale
+                const initialMessage = chatMessages.querySelector('.lyra-message');
+                chatMessages.innerHTML = '';
+                if(initialMessage) chatMessages.appendChild(initialMessage);
 
-                request.onsuccess = (event) => {
-                    const cursor = event.target.result;
-                    if (cursor) {
-                        messages.push(cursor.value);
-                        cursor.continue();
-                    } else {
-                        // Sort by timestamp after fetching all messages for the user
-                        messages.sort((a, b) => a.timestamp - b.timestamp);
-
-                        // Clear existing messages to avoid duplicates, keeping Lyra's initial message
-                        const initialMessageElement = chatMessages.querySelector('.lyra-message');
-                        chatMessages.innerHTML = ''; // Clear everything
-                        if (initialMessageElement && initialMessageElement.textContent === 'Ciao! Sono Lyra, il tuo assistente. Come posso aiutarti oggi?') {
-                            chatMessages.appendChild(initialMessageElement); // Restore the initial message
-                        } else {
-                            addMessage('lyra', 'Ciao! Sono Lyra, il tuo assistente. Come posso aiutarti oggi?', false, false); // Add if not present, don't save again
-                        }
-
-                        messages.forEach((msg) => {
-                            // Add only messages that are not the initial welcome message
-                            if (!(msg.sender === 'lyra' && msg.text === 'Ciao! Sono Lyra, il tuo assistente. Come posso aiutarti oggi?')) {
-                                addMessage(msg.sender, msg.text, false, false); // Do not animate or save loaded messages again
-                            }
-                        });
-                        console.log("Chat messages loaded from IndexedDB.");
+                messages.forEach((msg) => {
+                    // Aggiunge solo i messaggi che non sono quello di benvenuto iniziale
+                    if (!(msg.sender === 'lyra' && msg.text.includes('Ciao Fidax'))) {
+                        addMessage(msg.sender, msg.text, false);
                     }
-                };
-
-                request.onerror = (event) => {
-                    console.error("Error loading messages from IndexedDB:", event.target.error);
-                    showCustomAlert(`Errore nel caricamento della cronologia chat: ${event.target.error.message}. Controlla la console per dettagli.`);
-                };
-
-            } catch (error) {
-                console.error("Error accessing IndexedDB:", error);
-                showCustomAlert(`Errore nell'accesso a IndexedDB: ${error.message}. Controlla la console per dettagli.`);
-            }
+                });
+                console.log("Chat messages loaded from IndexedDB.");
+            };
+            request.onerror = (event) => {
+                console.error("Error loading messages from IndexedDB:", event.target.error);
+            };
         }
 
-        /**
-         * Sends the user's message to the Python backend and handles the response.
-         */
+        // Invia il messaggio dell'utente al backend e gestisce la risposta
         async function sendMessage() {
             const message = userInput.value.trim();
-            if (message === '') return; // Non inviare messaggi vuoti
-            if (!db) {
-                showCustomAlert("Database non ancora pronto. Impossibile inviare messaggi. Attendi o ricarica la pagina.");
-                return;
-            }
+            if (message === '' || !db) return;
 
-            // Pulisci il campo di input immediatamente per una migliore UX
             userInput.value = '';
-
-            // Aggiungi il messaggio dell'utente alla chat e salvalo in IndexedDB
-            await addMessage('user', message, true, true);
+            await addMessage('user', message, true);
 
             showLoading(true);
-            sendButton.disabled = true; // Disabilita il pulsante durante l'invio per prevenire doppi click
+            sendButton.disabled = true;
 
             try {
-                // Fai una richiesta POST al tuo server Flask
-                // L'URL deve corrispondere all'indirizzo dove il tuo server Flask è in esecuzione
-                const response = await fetch('http://127.0.0.1:5000/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: message }) // Invia il messaggio come JSON
-                });
-
-                // Controlla se la risposta HTTP è ok (status 200-299)
-                if (!response.ok) {
-                    const errorData = await response.json(); // Tenta di leggere i dettagli dell'errore dal JSON
-                    throw new Error(errorData.error || `Errore HTTP: ${response.status}`);
-                }
-
-                const data = await response.json(); // Parsa la risposta JSON
-                // Aggiungi la risposta di Lyra con l'effetto di digitazione e salvala in IndexedDB
-                await addMessage('lyra', data.reply, true, true);
+                // Simula una chiamata API e una risposta per la demo
+                // Sostituisci questo blocco con la tua chiamata fetch reale
+                setTimeout(() => {
+                    const replies = [
+                        "Certo, sto analizzando la tua richiesta: **" + message + "**",
+                        "Ho trovato alcune informazioni. Ecco un riassunto: `risultato_esempio`.",
+                        "Ecco un blocco di codice che potrebbe esserti utile:\n```javascript\nconsole.log('Hello, world!');\n```",
+                        "Analisi completata. C'è altro che posso fare per te?"
+                    ];
+                    const reply = replies[Math.floor(Math.random() * replies.length)];
+                    addMessage('lyra', reply, true);
+                    showLoading(false);
+                    sendButton.disabled = false;
+                    userInput.focus();
+                }, 1500);
 
             } catch (error) {
-                console.error('Errore durante l\'invio del messaggio o il salvataggio in IndexedDB:', error);
-                // In caso di errore, aggiungi un messaggio di errore senza effetto di digitazione
-                addMessage('lyra', `Mi dispiace, si è verificato un errore: ${error.message}. Riprova più tardi.`, false, false); // Non tentare di salvare un messaggio di errore nel DB se il problema è il DB
-            } finally {
+                console.error('Error sending message:', error);
+                addMessage('lyra', `Mi dispiace, si è verificato un errore: ${error.message}.`, false);
                 showLoading(false);
-                sendButton.disabled = false; // Riabilita il pulsante
-                userInput.focus(); // Rimetti il focus sul campo di input per facilitare la digitazione
+                sendButton.disabled = false;
+                userInput.focus();
             }
         }
 
-        // Aggiungi event listener per il click sul pulsante "Invia"
+        // Aggiunge l'event listener per il click sul pulsante "Invia"
         sendButton.addEventListener('click', sendMessage);
 
-        // Aggiungi event listener per il tasto "Invio" nel campo di input
+        // Aggiunge l'event listener per il tasto "Invio" nel campo di input
         userInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        // Inizializza il database e l'utente all'apertura della pagina
+        // Inizializza il database e l'utente al caricamento della pagina
         window.onload = initIndexedDbAndUser;
     </script>
 </body>
