@@ -245,6 +245,7 @@
             line-height: 1.4;
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
         }
 
         /* Stili per i nuovi bottoni in basso */
@@ -284,6 +285,68 @@
         .bottom-actions .action-button:hover i {
             color: var(--accent-color);
         }
+
+        /* Stili per la modale */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .modal-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .modal-content input {
+            width: calc(100% - 2rem); /* Adjusted for padding */
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .modal-content input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .modal-content button {
+            background-color: var(--accent-color);
+            color: var(--background-color);
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #cccccc; /* Slightly lighter on hover */
+        }
     </style>
 </head>
 <body>
@@ -292,8 +355,8 @@
         <header class="app-header">
             <div class="logo">AGENTE-LYRA</div>
             <div class="user-profile">
-                <img src="https://placehold.co/32x32/111111/ffffff?text=F" alt="User Avatar" class="rounded-full w-8 h-8 border-2 border-gray-600">
-                <span>Fidax</span>
+                <img src="https://placehold.co/32x32/111111/ffffff?text=U" alt="User Avatar" class="rounded-full w-8 h-8 border-2 border-gray-600">
+                <span id="user-nickname">Utente</span>
                 <i class="ph-bold ph-caret-down"></i>
             </div>
         </header>
@@ -304,7 +367,7 @@
                 <!-- I messaggi della chat verranno inseriti qui dal JavaScript -->
                 <div class="message-bubble lyra-message">
                     <i class="icon ph-bold ph-brain"></i>
-                    <div class="message-content">Ciao Fidax, sono Agente-Lyra. Posso aiutarti con generazione di file, ricerche su internet, e problemi di matematica, fisica ed etica. Come posso assisterti oggi?</div>
+                    <div class="message-content" id="initial-lyra-message">Ciao, sono Agente-Lyra. Posso aiutarti con generazione di file, ricerche su internet, e problemi di matematica, fisica ed etica. Come posso assisterti oggi?</div>
                 </div>
             </div>
         </main>
@@ -326,10 +389,31 @@
         </footer>
     </div>
 
+    <!-- Modale per l'input del nickname -->
+    <div id="nickname-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Benvenuto!</h2>
+            <p style="margin-bottom: 1rem;">Inserisci un nickname per iniziare a chattare:</p>
+            <input type="text" id="nickname-input" placeholder="Il tuo nickname">
+            <button id="save-nickname-button">Salva</button>
+        </div>
+    </div>
+
     <script>
         // --- SCRIPT LOGICA CHAT ---
         let db; // Variabile globale per il database IndexedDB
         let currentUserId = null; // Variabile per memorizzare l'ID utente
+        let userNickname = "Utente"; // Default nickname
+
+        // Riferimenti agli elementi HTML
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const userNicknameSpan = document.getElementById('user-nickname');
+        const initialLyraMessageDiv = document.getElementById('initial-lyra-message');
+        const nicknameModal = document.getElementById('nickname-modal');
+        const nicknameInput = document.getElementById('nickname-input');
+        const saveNicknameButton = document.getElementById('save-nickname-button');
 
         // Funzione per mostrare un alert personalizzato (non usata nel nuovo design, ma mantenuta per utilità)
         function showCustomAlert(message) {
@@ -345,7 +429,7 @@
             document.getElementById('alert-ok-button').onclick = () => alertBox.remove();
         }
 
-        // Inizializza IndexedDB e genera/recupera l'ID utente
+        // Inizializza IndexedDB e genera/recupera l'ID utente e nickname
         async function initIndexedDbAndUser() {
             return new Promise((resolve, reject) => {
                 currentUserId = localStorage.getItem('lyraChatUserId');
@@ -354,6 +438,16 @@
                     localStorage.setItem('lyraChatUserId', currentUserId);
                 }
                 console.log("User ID:", currentUserId);
+
+                userNickname = localStorage.getItem('lyraUserNickname') || "Utente";
+                userNicknameSpan.textContent = userNickname; // Update nickname in header
+                initialLyraMessageDiv.innerHTML = `Ciao ${userNickname}, sono Agente-Lyra. Posso aiutarti con generazione di file, ricerche su internet, e problemi di matematica, fisica ed etica. Come posso assisterti oggi?`;
+
+                // Show nickname modal if no nickname is set
+                if (userNickname === "Utente") {
+                    nicknameModal.classList.remove('hidden');
+                    nicknameInput.focus();
+                }
 
                 const request = indexedDB.open('LyraChatDB_Minimal', 1);
 
@@ -377,11 +471,6 @@
                 };
             });
         }
-
-        // Riferimenti agli elementi HTML
-        const chatMessages = document.getElementById('chat-messages');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
 
         // Funzione per mostrare un indicatore di "sta scrivendo..."
         function showLoading(show) {
@@ -469,7 +558,8 @@
 
                 messages.forEach((msg) => {
                     // Aggiunge solo i messaggi che non sono quello di benvenuto iniziale
-                    if (!(msg.sender === 'lyra' && msg.text.includes('Ciao Fidax'))) {
+                    // e che non sono il messaggio di benvenuto predefinito "Ciao Fidax"
+                    if (!(msg.sender === 'lyra' && msg.text.includes('Ciao') && msg.text.includes('Agente-Lyra'))) {
                         addMessage(msg.sender, msg.text, false);
                     }
                 });
@@ -534,6 +624,21 @@
         userInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 sendMessage();
+            }
+        });
+
+        // Event listener per il pulsante "Salva" della modale nickname
+        saveNicknameButton.addEventListener('click', () => {
+            const newNickname = nicknameInput.value.trim();
+            if (newNickname) {
+                localStorage.setItem('lyraUserNickname', newNickname);
+                userNickname = newNickname;
+                userNicknameSpan.textContent = userNickname;
+                initialLyraMessageDiv.innerHTML = `Ciao ${userNickname}, sono Agente-Lyra. Posso aiutarti con generazione di file, ricerche su internet, e problemi di matematica, fisica ed etica. Come posso assisterti oggi?`;
+                nicknameModal.classList.add('hidden');
+                userInput.focus(); // Focus on chat input after setting nickname
+            } else {
+                showCustomAlert("Per favore, inserisci un nickname valido.");
             }
         });
 
